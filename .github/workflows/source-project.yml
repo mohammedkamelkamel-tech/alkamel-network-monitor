@@ -16,7 +16,7 @@ jobs:
 
       - name: Create project ZIP
         run: |
-          zip -qr alkamel-network-monitor-project.zip . -x ".git/*"
+          zip -qr alkamel-network-monitor-project.zip . -x ".git/*" "alkamel-network-monitor-project.zip"
 
       - name: Upload project ZIP
         uses: actions/upload-artifact@v4
