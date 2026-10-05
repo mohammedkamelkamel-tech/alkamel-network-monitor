@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit
 data class ProbeResult(val online:Boolean,val latency:Long)
 
 object Probe{
- private val ports=intArrayOf(80,443,8080,8000,8443,81)
+ private val ports=intArrayOf(80,443,8080,8000)
 
  fun check(ip:String):ProbeResult{
   val started=System.currentTimeMillis()
