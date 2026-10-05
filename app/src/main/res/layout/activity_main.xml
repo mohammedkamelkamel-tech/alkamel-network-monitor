@@ -1,0 +1,11 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:layoutDirection="rtl">
+        <TextView android:id="@+id/title" android:text="مراقبة شبكة الكامل" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/summary" android:text="🟢 0 متصل   🔴 0 غير متصل" android:textSize="17sp" android:paddingTop="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/scan" android:text="🔍 فحص جميع الأجهزة" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/addRange" android:text="➕ إضافة رنج IP" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/addDevice" android:text="➕ إضافة جهاز يدويًا" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <Button android:id="@+id/monitor" android:text="▶️ تشغيل المراقبة الخلفية" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        <TextView android:id="@+id/list" android:text="لا توجد أجهزة بعد" android:textSize="16sp" android:paddingTop="16dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
