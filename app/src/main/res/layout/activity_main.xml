@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:layoutDirection="rtl">
- <TextView android:text="مراقبة شبكة الكامل" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+ <ImageView android:id="@+id/appLogo" android:src="@drawable/app_icon" android:contentDescription="@string/app_name" android:layout_width="96dp" android:layout_height="96dp" android:layout_gravity="center_horizontal" android:scaleType="centerCrop"/>
+ <TextView android:text="مراقبة شبكة الكامل" android:textSize="24sp" android:textStyle="bold" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content"/>
  <TextView android:id="@+id/summary" android:textSize="16sp" android:padding="8dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
  <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
   <Button android:id="@+id/scan" android:text="🔍 فحص" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
