@@ -1,0 +1,25 @@
+name: Package Source Project
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create project ZIP
+        run: |
+          zip -qr alkamel-network-monitor-project.zip . -x ".git/*"
+
+      - name: Upload project ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: alkamel-network-monitor-project
+          path: alkamel-network-monitor-project.zip
