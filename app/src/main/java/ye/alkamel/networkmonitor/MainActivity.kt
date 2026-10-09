@@ -205,6 +205,8 @@ class MainActivity:Activity(){
  override fun onDestroy(){ex.shutdownNow();super.onDestroy()}
 }
 
+private fun density(c:Context)=c.resources.displayMetrics.density
+
 class DeviceAdapter(private val c:Context,private var ds:List<Device>,private val edit:(Device)->Unit,private val toggle:(Device)->Unit,private val hist:(Device)->Unit,private val web:(Device)->Unit):BaseAdapter(){
  fun replace(x:List<Device>){ds=x;notifyDataSetChanged()}
  override fun getCount()=ds.size
@@ -212,16 +214,16 @@ class DeviceAdapter(private val c:Context,private var ds:List<Device>,private va
  override fun getItemId(p:Int)=p.toLong()
  override fun getView(p:Int,v:View?,parent:ViewGroup):View{
   val d=ds[p]
-  val box=LinearLayout(c).apply{orientation=LinearLayout.VERTICAL;setPadding(12,12,12,12)}
-  val t=TextView(c).apply{textSize=18f;text=(if(!d.enabled)"⚪"else if(d.online)"🟢"else"🔴")+" "+d.name+" — "+d.ip}
+  val box=LinearLayout(c).apply{orientation=LinearLayout.VERTICAL;setPadding(14,14,14,14);background=GradientDrawable().apply{setColor(Color.rgb(20,43,61));cornerRadius=18f*density(c);setStroke(1,Color.rgb(36,73,93))};clipToOutline=true}
+  val t=TextView(c).apply{textSize=18f;setTextColor(Color.rgb(230,246,255));text=(if(!d.enabled)"⚪"else if(d.online)"🟢"else"🔴")+" "+d.name+" — "+d.ip}
   val details=mutableListOf<String>()
   if(d.group.isNotBlank())details.add("📁 "+d.group)
   if(d.place.isNotBlank())details.add("📍 المكان: "+d.place)
   if(d.person.isNotBlank())details.add("👤 "+d.person)
   if(d.note.isNotBlank())details.add("📝 الملاحظات: "+d.note)
-  val i=TextView(c).apply{text=details.joinToString("   ");textSize=14f}
+  val i=TextView(c).apply{text=details.joinToString("   ");textSize=14f;setTextColor(Color.rgb(169,199,214));setPadding(0,8,0,8)}
   val b=LinearLayout(c)
-  fun add(s:String,f:()->Unit){b.addView(Button(c).apply{text=s;setOnClickListener{f()}})}
+  fun add(s:String,f:()->Unit){b.addView(Button(c).apply{text=s;setTextColor(Color.rgb(240,251,255));background=GradientDrawable().apply{setColor(Color.rgb(29,70,92));cornerRadius=12f*density(c);setStroke(1,Color.rgb(44,99,122))};setOnClickListener{f()}})}
   add("تعديل"){edit(d)};add(if(d.enabled)"تعطيل"else"تفعيل"){toggle(d)};add("السجل"){hist(d)};add("فتح"){web(d)}
   box.addView(t);if(details.isNotEmpty())box.addView(i);box.addView(b);return box
  }
