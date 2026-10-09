@@ -36,6 +36,33 @@ object BackupManager {
         return try { writeBackup(context, Uri.parse(value)) } catch (_: Exception) { false }
     }
 
+    fun restoreBackup(context: Context, backupUri: Uri): Boolean {
+        return try {
+            val json = context.contentResolver.openInputStream(backupUri)?.bufferedReader(Charsets.UTF_8)?.use {
+                it.readText()
+            } ?: return false
+            val root = JSONObject(json)
+            if (root.optString("app") != "مراقبة شبكة الكامل" || root.optInt("formatVersion", -1) != 1) return false
+            val data = root.optJSONObject("data") ?: return false
+            val editor = context.getSharedPreferences("network_monitor", Context.MODE_PRIVATE).edit().clear()
+            val keys = data.keys()
+            while (keys.hasNext()) {
+                val key = keys.next()
+                when (val value = data.get(key)) {
+                    is String -> editor.putString(key, value)
+                    is Boolean -> editor.putBoolean(key, value)
+                    is Int -> editor.putInt(key, value)
+                    is Long -> editor.putLong(key, value)
+                    is Double -> editor.putFloat(key, value.toFloat())
+                    else -> editor.putString(key, value.toString())
+                }
+            }
+            editor.commit()
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     internal fun writeBackup(context: Context, treeUri: Uri): Boolean {
         val resolver = context.contentResolver
         val treeId = DocumentsContract.getTreeDocumentId(treeUri)
