@@ -13,8 +13,11 @@ import java.util.concurrent.TimeUnit
 object BackupManager {
     private const val SETTINGS = "network_backup_settings"
     private const val TREE_URI = "backup_tree_uri"
+    private const val LAST_BACKUP = "last_successful_backup_at"
+    private const val DUPLICATE_WINDOW_MS = 60_000L
     private const val WORK_NAME = "alkamel_network_daily_backup"
 
+    @Synchronized
     fun saveFolder(context: Context, uri: Uri) {
         context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE).edit()
             .putString(TREE_URI, uri.toString()).apply()
@@ -30,10 +33,23 @@ object BackupManager {
         )
     }
 
+    @Synchronized
     fun createBackup(context: Context): Boolean {
-        val value = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-            .getString(TREE_URI, null) ?: return false
-        return try { writeBackup(context, Uri.parse(value)) } catch (_: Exception) { false }
+        val settings = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
+        val value = settings.getString(TREE_URI, null) ?: return false
+
+        // Prevent a manual request and a worker request from writing the same backup twice.
+        val now = System.currentTimeMillis()
+        val lastBackup = settings.getLong(LAST_BACKUP, 0L)
+        if (lastBackup > 0L && now - lastBackup in 0..DUPLICATE_WINDOW_MS) return true
+
+        return try {
+            val created = writeBackup(context, Uri.parse(value))
+            if (created) settings.edit().putLong(LAST_BACKUP, System.currentTimeMillis()).apply()
+            created
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun restoreBackup(context: Context, backupUri: Uri): Boolean {
