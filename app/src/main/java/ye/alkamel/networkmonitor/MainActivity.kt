@@ -19,6 +19,7 @@ class MainActivity:Activity(){
  private lateinit var offlineFilter:Button
  private var offlineOnly=false
  private val PICK_BACKUP_FOLDER=701
+ private val PICK_BACKUP_FILE=702
  private val ex=Executors.newFixedThreadPool(16)
 
  override fun onCreate(b:Bundle?){
@@ -30,6 +31,7 @@ class MainActivity:Activity(){
   findViewById<Button>(R.id.addRange).setOnClickListener{range()}
   findViewById<Button>(R.id.addDevice).setOnClickListener{dialog(null)}
   findViewById<Button>(R.id.backup).setOnClickListener{chooseBackupFolder()}
+  findViewById<Button>(R.id.restoreBackup).setOnClickListener{chooseBackupFile()}
   monitor.setOnClickListener{toggleMonitor()}
   offlineFilter.setOnClickListener{
    offlineOnly=!offlineOnly
@@ -46,15 +48,38 @@ class MainActivity:Activity(){
   startActivityForResult(i,PICK_BACKUP_FOLDER)
  }
 
+ private fun chooseBackupFile(){
+  val i=Intent(Intent.ACTION_OPEN_DOCUMENT).apply{
+   addCategory(Intent.CATEGORY_OPENABLE)
+   type="application/json"
+  }
+  startActivityForResult(i,PICK_BACKUP_FILE)
+ }
+
  override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
   super.onActivityResult(requestCode,resultCode,data)
-  if(requestCode==PICK_BACKUP_FOLDER&&resultCode==RESULT_OK){
-   val uri=data?.data ?: return
+  if(resultCode!=RESULT_OK)return
+  val uri=data?.data ?: return
+  if(requestCode==PICK_BACKUP_FOLDER){
    val flags=data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
    try{contentResolver.takePersistableUriPermission(uri,flags)}catch(_:Exception){}
    BackupManager.saveFolder(this,uri)
    if(BackupManager.createBackup(this))toast("تم حفظ النسخة الاحتياطية وتفعيل النسخ كل 24 ساعة")
    else toast("تعذر إنشاء النسخة. تحقق من صلاحية مجلد الحفظ")
+  }else if(requestCode==PICK_BACKUP_FILE){
+   val flags=data.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION
+   try{contentResolver.takePersistableUriPermission(uri,flags)}catch(_:Exception){}
+   AlertDialog.Builder(this)
+    .setTitle("استعادة النسخة الاحتياطية")
+    .setMessage("سيتم استبدال بيانات الأجهزة والسجلات الحالية بالبيانات الموجودة في النسخة المختارة. يُفضّل إنشاء نسخة احتياطية حالية أولًا. هل تريد المتابعة؟")
+    .setPositiveButton("استعادة"){_,_->
+     if(BackupManager.restoreBackup(this,uri)){
+      refresh()
+      toast("تمت استعادة النسخة الاحتياطية بنجاح")
+     }else toast("تعذرت الاستعادة. اختر ملف نسخة احتياطية صحيحًا من تطبيق الكامل")
+    }
+    .setNegativeButton("إلغاء",null)
+    .show()
   }
  }
 
