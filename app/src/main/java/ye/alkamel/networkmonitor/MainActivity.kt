@@ -18,6 +18,7 @@ class MainActivity:Activity(){
  private lateinit var monitor:Button
  private lateinit var offlineFilter:Button
  private var offlineOnly=false
+ private val PICK_BACKUP_FOLDER=701
  private val ex=Executors.newFixedThreadPool(16)
 
  override fun onCreate(b:Bundle?){
@@ -28,6 +29,7 @@ class MainActivity:Activity(){
   findViewById<Button>(R.id.scan).setOnClickListener{scan()}
   findViewById<Button>(R.id.addRange).setOnClickListener{range()}
   findViewById<Button>(R.id.addDevice).setOnClickListener{dialog(null)}
+  findViewById<Button>(R.id.backup).setOnClickListener{chooseBackupFolder()}
   monitor.setOnClickListener{toggleMonitor()}
   offlineFilter.setOnClickListener{
    offlineOnly=!offlineOnly
@@ -38,6 +40,23 @@ class MainActivity:Activity(){
  }
 
  override fun onResume(){super.onResume();refresh()}
+
+ private fun chooseBackupFolder(){
+  val i=Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+  startActivityForResult(i,PICK_BACKUP_FOLDER)
+ }
+
+ override fun onActivityResult(requestCode:Int,resultCode:Int,data:Intent?){
+  super.onActivityResult(requestCode,resultCode,data)
+  if(requestCode==PICK_BACKUP_FOLDER&&resultCode==RESULT_OK){
+   val uri=data?.data ?: return
+   val flags=data.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+   try{contentResolver.takePersistableUriPermission(uri,flags)}catch(_:Exception){}
+   BackupManager.saveFolder(this,uri)
+   if(BackupManager.createBackup(this))toast("تم حفظ النسخة الاحتياطية وتفعيل النسخ كل 24 ساعة")
+   else toast("تعذر إنشاء النسخة. تحقق من صلاحية مجلد الحفظ")
+  }
+ }
 
  private fun displayDevices():List<Device>{
   val all=AppStore.devices(this)
